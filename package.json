@@ -1,0 +1,22 @@
+{
+  "name": "vim-modeline",
+  "main": "./lib/vim-modeline",
+  "version": "0.0.0",
+  "description": "Enable Vim-style modeline in Atom.",
+  "keywords": [
+    "vim",
+    "format",
+    "code",
+    "style",
+    "code-style"
+  ],
+  "repository": "https://github.com/fkfk/vim-modeline",
+  "license": "MIT",
+  "engines": {
+    "atom": ">=1.0.0"
+  },
+  "dependencies": {
+    "underscore-plus": "^1.6.6",
+    "iconv-lite": "^0.4.13"
+  }
+}
