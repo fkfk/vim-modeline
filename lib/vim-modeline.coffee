@@ -1,7 +1,7 @@
 _ = require 'underscore-plus'
 iconv = require 'iconv-lite'
 
-{CompositeDisposable} = require 'atom'
+{Emitter, CompositeDisposable} = require 'atom'
 
 module.exports = VimModeline =
   config:
@@ -16,6 +16,7 @@ module.exports = VimModeline =
         type: 'string'
 
   subscriptions: null
+  emitter: null
   shortOptions: {
     fenc: "fileencoding"
     ff:   "fileformat"
@@ -36,6 +37,8 @@ module.exports = VimModeline =
   }
 
   activate: (state) ->
+    @emitter = new Emitter
+
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
@@ -46,6 +49,32 @@ module.exports = VimModeline =
 
   deactivate: ->
     @subscriptions.dispose()
+
+  onDidParse: (callback) ->
+    @emitter.on 'did-parse', callback
+
+  onDidSetLineEnding: (callback) ->
+    @emitter.on 'did-set-line-ending', callback
+
+  onDidSetFileType: (callback) ->
+    @emitter.on 'did-set-file-type', callback
+
+  onDidSetEncoding: (callback) ->
+    @emitter.on 'did-set-encoding', callback
+
+  onDidSetSoftTabs: (callback) ->
+    @emitter.on 'did-set-softtabs', callback
+
+  onDidSetTabLength: (callback) ->
+    @emitter.on 'did-set-tab-length', callback
+
+  provideVimModelineEventHandlerV1: ->
+    onDidParse: @onDidParse.bind(@)
+    onDidSetLineEnding: @onDidSetLineEnding.bind(@)
+    onDidSetFileType: @onDidSetFileType.bind(@)
+    onDidSetEncoding: @onDidSetEncoding.bind(@)
+    onDidSetSoftTabs: @onDidSetSoftTabs.bind(@)
+    onDidSetTabLength: @onDidSetTabLength.bind(@)
 
   detectVimModeLine: (editor = null) ->
     editor = atom.workspace.getActiveTextEditor() if editor is null
@@ -61,6 +90,7 @@ module.exports = VimModeline =
       for i in lineNum
         opts = @parseVimModeLine editor.lineTextForBufferRow(i)
         options = opts if opts
+      @emitter.emit 'did-parse', {editor, options}
       return false unless options
     catch error
       console.error error
@@ -90,6 +120,7 @@ module.exports = VimModeline =
     return false unless iconv.encodingExists encoding
     encoding = encoding.toLowerCase().replace /[^0-9a-z]|:\d{4}$/g, ''
     editor?.setEncoding encoding
+    @emitter.emit 'did-set-encoding', editor, encoding, @
 
   setLineEnding: (editor, lineEnding) ->
     return unless lineEnding
@@ -97,18 +128,22 @@ module.exports = VimModeline =
     return unless buffer
     buffer.setPreferredLineEnding lineEnding
     buffer.setText buffer.getText().replace(/\r\n|\r|\n/g, lineEnding)
+    @emitter.emit 'did-set-line-ending', editor, lineEnding, @
 
   setFileType: (editor, type) ->
     grammar = atom.grammars.selectGrammar(type)
     if grammar isnt atom.grammars.nullGrammar
       atom.grammars.setGrammarOverrideForPath editor.getPath(), grammar
       editor?.setGrammar grammar
+      @emitter.emit 'did-set-file-type', editor, grammar, @
 
   setIndent: (editor, options) ->
     softtab = undefined
     softtab = true if options.expandtab
     softtab = false if options.noexpandtab
-    editor?.setSoftTabs softtab if softtab isnt undefined
+    if softtab isnt undefined
+      editor?.setSoftTabs softtab
+      @emitter.emit 'did-set-softtabs', editor, softtab, @
 
     # TODO: softtabstop and shiftwidth support
     #indent = options.softtabstop
@@ -119,4 +154,6 @@ module.exports = VimModeline =
     #return unless indent
     #editor?.setTabLength indent
 
-    editor?.setTabLength options.tabstop if options.tabstop
+    if options.tabstop
+      editor?.setTabLength options.tabstop
+      @emitter.emit 'did-set-tab-length', editor, options.tabstop, @

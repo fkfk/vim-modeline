@@ -24,6 +24,27 @@ Enable Vim-style modeline in Atom.
 # atom:set expandtab tabstop=2 fenc=utf-8 ff=unix ft=coffee:
 ```
 
+## vim-modeline Event Handler
+
+This package can use the event handler using "Service API".
+
+- onDidParse
+- onDidSetLineEnding
+- onDidSetFileType
+- onDidSetEncoding
+- onDidSetSoftTabs
+- onDidSetTabLength
+
+eg: get parse result in `init.coffee`.
+
+```coffeescript
+atom.packages.serviceHub.consume "vim-modeline-event-handler", "^1.0.0", (handler) ->
+  handler.onDidParse ({editor, options}) ->
+    console.log editor
+    console.log options
+    someFunction(options)
+```
+
 ## TODO
 
 - [ ] `softtabstop` support
