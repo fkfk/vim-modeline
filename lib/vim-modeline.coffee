@@ -9,6 +9,11 @@ module.exports = VimModeline =
       type: 'integer'
       default: 5
       minimum: 1
+    prefix:
+      type: 'array'
+      default: ['vi', 'vim', 'ex', 'atom']
+      items:
+        type: 'string'
 
   subscriptions: null
   shortOptions: {
@@ -67,11 +72,13 @@ module.exports = VimModeline =
     @setIndent editor, options
 
   parseVimModeLine: (line) ->
-    matches = line.match /(vi|vim|ex)([<=>]?\d+)*:\s*(se(t)*)*\s+([^:]+)*\s*:/
+    prefix = atom.config.get('vim-modeline.prefix').join "|"
+    re = new RegExp "(#{prefix})([<=>]?\\d+)*:\\s*(set*)*\\s+([^:]+)*\\s*:"
+    matches = line.match re
     options = null
     if matches
       options = {}
-      for option in matches[5].split " "
+      for option in matches[4].split " "
         [key, value] = option.split "="
         key = @shortOptions[key] if @shortOptions[key] isnt undefined
         for pair in @pairOptions
