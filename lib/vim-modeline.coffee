@@ -27,6 +27,13 @@ module.exports = VimModeline =
     sw:   "shiftwidth"
     noet: "noexpandtab"
   }
+  alternativeOptions: {
+    useSoftTabs: "expandtab"
+    tabLength: "tabstop"
+    encoding: "fileencoding"
+    lineEnding: "fileformat"
+    grammar: "filetype"
+  }
   pairOptions: [
     {on: "expandtab", off: "noexpandtab"}
   ]
@@ -34,6 +41,11 @@ module.exports = VimModeline =
     unix: "\n"
     dos:  "\r\n"
     mac:  "\r"
+  }
+  alternativeValue: {
+    lf: "unix"
+    crlf: "dos"
+    cr: "mac"
   }
 
   activate: (state) ->
@@ -111,6 +123,8 @@ module.exports = VimModeline =
       for option in matches[4].split " "
         [key, value] = option.split "="
         key = @shortOptions[key] if @shortOptions[key] isnt undefined
+        key = @alternativeOptions[key] if @alternativeOptions[key] isnt undefined
+        value = @alternativeValue[value] if @alternativeValue[value] isnt undefined
         for pair in @pairOptions
           delete options[pair.on] if key is pair.off and options[pair.on]
         options[key] = value ? true if key isnt ""

@@ -21,8 +21,16 @@ Enable Vim-style modeline in Atom.
 ### Atom-specific modeline
 
 ```coffeescript
-# atom:set expandtab tabstop=2 fenc=utf-8 ff=unix ft=coffee:
+# atom:set useSoftTabs tabLength=2 encoding=utf-8 lineEnding=lf grammar=coffee:
 ```
+
+## Atom-specific modeline
+
+- `useSoftTabs` -> `expandtab`
+- `encoding` -> `fileencoding`
+- `lineEnding` -> `fileformat`
+- `grammar` -> `filetype`
+- `tabLength` -> `tabstop`
 
 ## vim-modeline Event Handler
 
