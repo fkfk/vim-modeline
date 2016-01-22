@@ -4,20 +4,6 @@ iconv = require 'iconv-lite'
 {Emitter, CompositeDisposable} = require 'atom'
 
 module.exports = VimModeline =
-  config:
-    readLineNum:
-      type: 'integer'
-      default: 5
-      minimum: 1
-    prefix:
-      type: 'array'
-      default: ['vi', 'vim', 'ex', 'atom']
-      items:
-        type: 'string'
-    insertPrefix:
-      type: 'string'
-      enum: ['atom', 'vi', 'vim', 'ex', 'atom']
-
   subscriptions: null
   emitter: null
   shortOptions: {

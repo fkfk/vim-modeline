@@ -18,6 +18,25 @@
       }
     }
   },
+  "configSchema": {
+    "readLineNum": {
+      "type": "integer",
+      "default": 5,
+      "minimum": 1
+    },
+    "prefix": {
+      "type": "array",
+      "default": ["vi", "vim", "ex", "atom"],
+      "items": {
+        "type": "string"
+      }
+    },
+    "insertPrefix": {
+      "type": "string",
+      "enum": ["vi", "vim", "ex", "atom"],
+      "default": "atom"
+    }
+  },
   "repository": "https://github.com/fkfk/vim-modeline",
   "license": "MIT",
   "engines": {
