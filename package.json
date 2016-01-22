@@ -1,7 +1,7 @@
 {
   "name": "vim-modeline",
   "main": "./lib/vim-modeline",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Enable Vim-style modeline in Atom.",
   "keywords": [
     "vim",
@@ -26,14 +26,24 @@
     },
     "prefix": {
       "type": "array",
-      "default": ["vi", "vim", "ex", "atom"],
+      "default": [
+        "vi",
+        "vim",
+        "ex",
+        "atom"
+      ],
       "items": {
         "type": "string"
       }
     },
     "insertPrefix": {
       "type": "string",
-      "enum": ["vi", "vim", "ex", "atom"],
+      "enum": [
+        "vi",
+        "vim",
+        "ex",
+        "atom"
+      ],
       "default": "atom"
     }
   },
