@@ -9,3 +9,4 @@
 # https://atom.io/docs/latest/behind-atom-keymaps-in-depth
 'atom-text-editor':
   'ctrl-alt-v': 'vim-modeline:detect'
+  'ctrl-alt-v ctrl-alt-i': 'vim-modeline:insert-modeline'

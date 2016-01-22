@@ -14,6 +14,9 @@ module.exports = VimModeline =
       default: ['vi', 'vim', 'ex', 'atom']
       items:
         type: 'string'
+    insertPrefix:
+      type: 'string'
+      enum: ['atom', 'vi', 'vim', 'ex', 'atom']
 
   subscriptions: null
   emitter: null
@@ -56,6 +59,7 @@ module.exports = VimModeline =
 
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-text-editor', 'vim-modeline:detect': => @detectVimModeLine()
+    @subscriptions.add atom.commands.add 'atom-text-editor', 'vim-modeline:insert-modeline': => @insertModeLine()
 
     @subscriptions.add atom.workspace.observeTextEditors (editor) => @detectVimModeLine(editor)
 
@@ -171,3 +175,45 @@ module.exports = VimModeline =
     if options.tabstop
       editor?.setTabLength options.tabstop
       @emitter.emit 'did-set-tab-length', editor, options.tabstop, @
+
+  insertModeLine: ->
+    editor = atom.workspace.getActiveTextEditor()
+    return unless editor
+    scopeName = editor.getGrammar()?.scopeName.split(".")
+    options =
+      fileencoding: editor.getEncoding()
+      fileformat: @detectLineEnding()
+      filetype: scopeName[scopeName.length - 1]
+      tabstop: editor.getTabLength()
+      expandtab: editor.getSoftTabs()
+
+    scope = editor.scopeDescriptorForBufferPosition [0, 0]
+    comment = atom.config.get("editor.commentStart", {scope})
+
+    if comment
+      prefix = atom.config.get "vim-modeline.insertPrefix"
+      settings = _.map(options, (v, k) ->
+        if typeof v is "boolean"
+          return "#{if v then "" else "no"}#{k}"
+        else
+          return "#{k}:#{v}"
+      ).join(" ")
+      modeline = "#{comment}#{prefix}:set #{settings}:"
+      currentPosition = editor.getCursorBufferPosition()
+      editor.setCursorBufferPosition [editor.getLastBufferRow(), 0]
+      editor.insertNewlineBelow()
+      editor.insertText modeline
+      editor.setCursorBufferPosition currentPosition
+    else
+      console.error "'editor.commentStart' is undefined in this scope."
+
+  detectLineEnding: (editor)->
+    editor = atom.workspace.getActiveTextEditor() unless editor
+    buffer = editor?.getBuffer()
+    return unless editor
+
+    lineEnding = buffer.lineEndingForRow(buffer.getLastRow() - 1)
+    for key, val of @lineEnding
+      if val is lineEnding
+        return key
+    return undefined
