@@ -124,7 +124,7 @@ module.exports = VimModeline =
     return false unless iconv.encodingExists encoding
     encoding = encoding.toLowerCase().replace /[^0-9a-z]|:\d{4}$/g, ''
     editor?.setEncoding encoding
-    @emitter.emit 'did-set-encoding', editor, encoding, @
+    @emitter.emit 'did-set-encoding', {editor, encoding}, @
 
   setLineEnding: (editor, lineEnding) ->
     return unless lineEnding
@@ -132,14 +132,14 @@ module.exports = VimModeline =
     return unless buffer
     buffer.setPreferredLineEnding lineEnding
     buffer.setText buffer.getText().replace(/\r\n|\r|\n/g, lineEnding)
-    @emitter.emit 'did-set-line-ending', editor, lineEnding, @
+    @emitter.emit 'did-set-line-ending', {editor, lineEnding}, @
 
   setFileType: (editor, type) ->
     grammar = atom.grammars.selectGrammar(type)
     if grammar isnt atom.grammars.nullGrammar
       atom.grammars.setGrammarOverrideForPath editor.getPath(), grammar
       editor?.setGrammar grammar
-      @emitter.emit 'did-set-file-type', editor, grammar, @
+      @emitter.emit 'did-set-file-type', {editor, grammar}, @
 
   setIndent: (editor, options) ->
     softtab = undefined
@@ -147,7 +147,7 @@ module.exports = VimModeline =
     softtab = false if options.noexpandtab
     if softtab isnt undefined
       editor?.setSoftTabs softtab
-      @emitter.emit 'did-set-softtabs', editor, softtab, @
+      @emitter.emit 'did-set-softtabs', {editor, softtab}, @
 
     # TODO: softtabstop and shiftwidth support
     #indent = options.softtabstop
@@ -160,7 +160,8 @@ module.exports = VimModeline =
 
     if options.tabstop
       editor?.setTabLength options.tabstop
-      @emitter.emit 'did-set-tab-length', editor, options.tabstop, @
+      tabstop = options.tabstop
+      @emitter.emit 'did-set-tab-length', {editor, tabstop}, @
 
   insertModeLine: ->
     editor = atom.workspace.getActiveTextEditor()
