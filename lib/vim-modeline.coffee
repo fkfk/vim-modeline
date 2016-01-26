@@ -39,15 +39,22 @@ module.exports = VimModeline =
 
   activate: (state) ->
     @emitter = new Emitter
+    _this = @
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
     # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-text-editor', 'vim-modeline:detect': => @detectVimModeLine()
+    @subscriptions.add atom.commands.add 'atom-text-editor', 'vim-modeline:detect': => @detectVimModeLine(null, true)
     @subscriptions.add atom.commands.add 'atom-text-editor', 'vim-modeline:insert-modeline': => @insertModeLine()
 
-    @subscriptions.add atom.workspace.observeTextEditors (editor) => @detectVimModeLine(editor)
+    @subscriptions.add atom.workspace.observeTextEditors (editor) => @detectVimModeLine(editor, false)
+
+    @subscriptions.add @onDidSetEncoding ({encoding}) ->
+      pkg = atom.packages.getActivePackage 'auto-encoding'
+      console.log encoding
+      if pkg?.mainModule.subscriptions? and not _this.commandDispatched
+        atom.notifications.addWarning "WARNING: auto-encoding package is enabled. In this case, file encoding doesn't match the modeline. If you want use vim-modeline parse result, please invoke 'vim-modeline:detect' command or select encoding '#{encoding}'.", dismissable: true
 
   deactivate: ->
     @subscriptions.dispose()
@@ -78,7 +85,7 @@ module.exports = VimModeline =
     onDidSetSoftTabs: @onDidSetSoftTabs.bind(@)
     onDidSetTabLength: @onDidSetTabLength.bind(@)
 
-  detectVimModeLine: (editor = null) ->
+  detectVimModeLine: (editor = null, @commandDispatched = false) ->
     editor = atom.workspace.getActiveTextEditor() if editor is null
     return unless editor
     options = false

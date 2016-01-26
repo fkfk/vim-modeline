@@ -53,6 +53,11 @@ atom.packages.serviceHub.consume "vim-modeline-event-handler", "^1.0.0", (handle
     someFunction(options)
 ```
 
+## Conflict issue
+
+If you use [auto-encoding](https://atom.io/packages/auto-encoding) package, file encoding doesn't match the modeline.
+If you want use vim-modeline parse result, please invoke 'vim-modeline:detect' command after open TextEditor.
+
 ## TODO
 
 - [ ] `softtabstop` support
