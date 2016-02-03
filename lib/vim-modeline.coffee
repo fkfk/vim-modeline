@@ -190,7 +190,7 @@ module.exports = VimModeline =
         if typeof v is "boolean"
           return "#{if v then "" else "no"}#{k}"
         else
-          return "#{k}:#{v}"
+          return "#{k}=#{v}"
       ).join(" ")
       modeline = "#{comment}#{prefix}:set #{settings}:"
       currentPosition = editor.getCursorBufferPosition()
