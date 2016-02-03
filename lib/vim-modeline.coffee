@@ -165,8 +165,8 @@ module.exports = VimModeline =
     #editor?.setTabLength indent
 
     if options.tabstop
-      editor?.setTabLength options.tabstop
-      tabstop = options.tabstop
+      tabstop = parseInt options.tabstop, 10
+      editor?.setTabLength tabstop
       @emitter.emit 'did-set-tab-length', {editor, tabstop}, @
 
   insertModeLine: ->
