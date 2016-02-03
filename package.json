@@ -45,6 +45,16 @@
         "atom"
       ],
       "default": "atom"
+    },
+    "insertModelinePosition": {
+      "type": "string",
+      "enum": [
+        "first row",
+        "last row",
+        "above cursor row",
+        "below cursor row"
+      ],
+      "default": "last row"
     }
   },
   "repository": "https://github.com/fkfk/vim-modeline",

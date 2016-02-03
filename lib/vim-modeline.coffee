@@ -180,7 +180,8 @@ module.exports = VimModeline =
       tabstop: editor.getTabLength()
       expandtab: editor.getSoftTabs()
 
-    scope = editor.scopeDescriptorForBufferPosition [0, 0]
+    modelineRange = [@getInsertModelineRow(editor), 0]
+    scope = editor.scopeDescriptorForBufferPosition modelineRange
     comment = atom.config.get("editor.commentStart", {scope})
 
     if comment
@@ -193,12 +194,23 @@ module.exports = VimModeline =
       ).join(" ")
       modeline = "#{comment}#{prefix}:set #{settings}:"
       currentPosition = editor.getCursorBufferPosition()
-      editor.setCursorBufferPosition [editor.getLastBufferRow(), 0]
-      editor.insertNewlineBelow()
+      editor.setCursorBufferPosition modelineRange
+      if atom.config.get("vim-modeline.insertModelinePosition") is "first row" or atom.config.get("vim-modeline.insertModelinePosition") is "above cursor row"
+        editor.insertNewlineAbove()
+      else
+        editor.insertNewlineBelow()
       editor.insertText modeline
       editor.setCursorBufferPosition currentPosition
     else
       console.error "'editor.commentStart' is undefined in this scope."
+
+  getInsertModelineRow: (editor) ->
+    editor = atom.workspace.getActiveTextEditor() unless editor
+    switch atom.config.get "vim-modeline.insertModelinePosition"
+      when "first row"        then 0
+      when "last row"         then editor.getLastBufferRow()
+      when "above cursor row" then editor.getCursorBufferPosition().row
+      when "below cursor row" then editor.getCursorBufferPosition().row
 
   detectLineEnding: (editor)->
     editor = atom.workspace.getActiveTextEditor() unless editor
