@@ -143,7 +143,7 @@ module.exports = VimModeline =
   setFileType: (editor, type) ->
     grammar = atom.grammars.selectGrammar(type)
     if grammar isnt atom.grammars.nullGrammar
-      atom.grammars.setGrammarOverrideForPath editor.getPath(), grammar
+      atom.grammars.setGrammarOverrideForPath editor.getPath(), grammar.scopeName
       editor?.setGrammar grammar
       @emitter.emit 'did-set-file-type', {editor, grammar}, @
 
