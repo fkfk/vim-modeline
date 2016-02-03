@@ -52,7 +52,6 @@ module.exports = VimModeline =
 
     @subscriptions.add @onDidSetEncoding ({encoding}) ->
       pkg = atom.packages.getActivePackage 'auto-encoding'
-      console.log encoding
       if pkg?.mainModule.subscriptions? and not _this.commandDispatched
         atom.notifications.addWarning "WARNING: auto-encoding package is enabled. In this case, file encoding doesn't match the modeline. If you want use vim-modeline parse result, please invoke 'vim-modeline:detect' command or select encoding '#{encoding}'.", dismissable: true
 
