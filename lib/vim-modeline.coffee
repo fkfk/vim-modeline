@@ -103,7 +103,7 @@ module.exports = VimModeline =
 
   detectVimModeLine: (editor) ->
     options = false
-    max = atom.config.get "vim-modeline.readLineNum"
+    max = atom.config.get("vim-modeline.readLineNum") - 1
     try
       if editor.getLastBufferRow() > max
         lineNum = _.uniq([0..max].concat [(editor.getLastBufferRow() - max)..editor.getLastBufferRow()])
