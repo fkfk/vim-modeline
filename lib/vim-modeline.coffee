@@ -6,6 +6,7 @@ iconv = require 'iconv-lite'
 module.exports = VimModeline =
   subscriptions: null
   emitter: null
+  modelinePattern: null
   shortOptions: {
     fenc: "fileencoding"
     ff:   "fileformat"
@@ -53,6 +54,10 @@ module.exports = VimModeline =
       pkg = atom.packages.getActivePackage 'auto-encoding'
       if pkg?.mainModule.subscriptions? and not @commandDispatched
         atom.notifications.addWarning "WARNING: auto-encoding package is enabled. In this case, file encoding doesn't match the modeline. If you want use vim-modeline parse result, please invoke 'vim-modeline:detect' command or select encoding '#{encoding}'.", dismissable: true
+
+    @subscriptions.add atom.config.onDidChange 'vim-modeline.prefix', => @updateModelinePattern()
+
+    @updateModelinePattern()
 
   deactivate: ->
     @subscriptions.dispose()
@@ -108,10 +113,12 @@ module.exports = VimModeline =
     @setEncoding editor, options.fileencoding
     @setIndent editor, options
 
-  parseVimModeLine: (line) ->
+  updateModelinePattern: ->
     prefix = atom.config.get('vim-modeline.prefix').join "|"
-    re = new RegExp "(#{prefix})([<=>]?\\d+)*:\\s*(set*)*\\s+([^:]+)*\\s*:"
-    matches = line.match re
+    @modelinePattern = new RegExp "(#{prefix})([<=>]?\\d+)*:\\s*(set*)*\\s+([^:]+)*\\s*:"
+
+  parseVimModeLine: (line) ->
+    matches = line.match @modelinePattern
     options = null
     if matches
       options = {}
