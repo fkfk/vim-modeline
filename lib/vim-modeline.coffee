@@ -181,27 +181,14 @@ module.exports = VimModeline =
   insertModeLine: ->
     editor = atom.workspace.getActiveTextEditor()
     return unless editor
-    scopeName = editor.getGrammar()?.scopeName.split(".")
-    options =
-      fileencoding: editor.getEncoding()
-      fileformat: @detectLineEnding()
-      filetype: scopeName[scopeName.length - 1]
-      tabstop: editor.getTabLength()
-      expandtab: editor.getSoftTabs()
+    options = @getCurrentOptions editor
 
     modelineRange = [@getInsertModelineRow(editor), 0]
     scope = editor.scopeDescriptorForBufferPosition modelineRange
     comment = atom.config.get("editor.commentStart", {scope})
 
     if comment
-      prefix = atom.config.get "vim-modeline.insertPrefix"
-      settings = _.map(options, (v, k) ->
-        if typeof v is "boolean"
-          return "#{if v then "" else "no"}#{k}"
-        else
-          return "#{k}=#{v}"
-      ).join(" ")
-      modeline = "#{comment}#{prefix}:set #{settings}:"
+      modeline = "#{comment}#{@makeModeline(options)}"
       currentPosition = editor.getCursorBufferPosition()
       editor.setCursorBufferPosition modelineRange
       if atom.config.get("vim-modeline.insertModelinePosition") is "first row" or atom.config.get("vim-modeline.insertModelinePosition") is "above cursor row"
@@ -212,6 +199,38 @@ module.exports = VimModeline =
       editor.setCursorBufferPosition currentPosition
     else
       console.error "'editor.commentStart' is undefined in this scope."
+
+  getCurrentOptions: (editor) ->
+    editor = atom.workspace.getActiveTextEditor() unless editor
+    scopeName = editor.getGrammar()?.scopeName.split(".")
+
+    keys = switch atom.config.get("vim-modeline.insertModelineType")
+      when "short"    then ["fenc", "ff", "ft", "ts", "et"]
+      when "long"     then ["fileencoding", "fileformat", "filetype", "tabstop", "expandtab"]
+      when "original" then ["encoding", "lineEnding", "grammar", "tabLength", "useSoftTabs"]
+
+    options = {}
+    for key in keys
+      property = key
+      key = @shortOptions[key] if @shortOptions[key] isnt undefined
+      key = @alternativeOptions[key] if @alternativeOptions[key] isnt undefined
+      options[property] = switch key
+        when "fileencoding" then editor.getEncoding()
+        when "fileformat"   then @detectLineEnding(editor)
+        when "filetype"     then scopeName[scopeName.length - 1]
+        when "tabstop"      then editor.getTabLength()
+        when "expandtab"    then editor.getSoftTabs()
+    options
+
+  makeModeline: (options) ->
+    prefix =
+    settings = _.map(options, (v, k) ->
+      if typeof v is "boolean"
+        return "#{if v then "" else "no"}#{k}"
+      else
+        return "#{k}=#{v}"
+    ).join(" ")
+    "#{atom.config.get("vim-modeline.insertPrefix")}:set #{settings}:"
 
   getInsertModelineRow: (editor) ->
     editor = atom.workspace.getActiveTextEditor() unless editor

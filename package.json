@@ -55,6 +55,15 @@
         "below cursor row"
       ],
       "default": "last row"
+    },
+    "insertModelineType": {
+      "type": "string",
+      "enum": [
+        "short",
+        "long",
+        "original"
+      ],
+      "default": "long"
     }
   },
   "repository": "https://github.com/fkfk/vim-modeline",
