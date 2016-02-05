@@ -1,7 +1,7 @@
 {
   "name": "vim-modeline",
   "main": "./lib/vim-modeline",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "Enable Vim-style modeline in Atom.",
   "keywords": [
     "vim",
