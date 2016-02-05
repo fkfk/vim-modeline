@@ -97,7 +97,7 @@ module.exports = VimModeline =
         lineNum = [0..editor.getLastBufferRow()]
       for i in lineNum
         opts = @parseVimModeLine editor.lineTextForBufferRow(i)
-        options = opts if opts
+        options = _.extend {}, options || {}, opts if opts
       @emitter.emit 'did-parse', {editor, options}
       return false unless options
     catch error
