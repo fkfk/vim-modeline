@@ -45,10 +45,10 @@ module.exports = VimModeline =
     @subscriptions = new CompositeDisposable
 
     # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-text-editor', 'vim-modeline:detect': => @detectVimModeLine(null, true)
+    @subscriptions.add atom.commands.add 'atom-text-editor', 'vim-modeline:detect': => @detectAndApplyModelineSetting(null, true)
     @subscriptions.add atom.commands.add 'atom-text-editor', 'vim-modeline:insert-modeline': => @insertModeLine()
 
-    @subscriptions.add atom.workspace.observeTextEditors (editor) => @detectVimModeLine(editor, false)
+    @subscriptions.add atom.workspace.observeTextEditors (editor) => @detectAndApplyModelineSetting(editor, false)
 
     @subscriptions.add @onDidSetEncoding ({encoding}) =>
       pkg = atom.packages.getActivePackage 'auto-encoding'
@@ -88,12 +88,22 @@ module.exports = VimModeline =
     onDidSetSoftTabs: @onDidSetSoftTabs.bind(@)
     onDidSetTabLength: @onDidSetTabLength.bind(@)
 
-  detectVimModeLine: (editor = null, @commandDispatched = false) ->
+  detectAndApplyModelineSetting: (editor = null, @commandDispatched = false) ->
     editor = atom.workspace.getActiveTextEditor() if editor is null
     return unless editor
+
+    options = @detectVimModeLine editor
+    @emitter.emit 'did-parse', {editor, options}
+
+    if options
+      @setLineEnding editor, @lineEnding[options.fileformat]
+      @setFileType editor, options.filetype
+      @setEncoding editor, options.fileencoding
+      @setIndent editor, options
+
+  detectVimModeLine: (editor) ->
     options = false
     max = atom.config.get "vim-modeline.readLineNum"
-
     try
       if editor.getLastBufferRow() > max
         lineNum = _.uniq([0..max].concat [(editor.getLastBufferRow() - max)..editor.getLastBufferRow()])
@@ -102,16 +112,9 @@ module.exports = VimModeline =
       for i in lineNum
         opts = @parseVimModeLine editor.lineTextForBufferRow(i)
         options = _.extend {}, options || {}, opts if opts
-      @emitter.emit 'did-parse', {editor, options}
-      return false unless options
     catch error
       console.error error
-      return false
-
-    @setLineEnding editor, @lineEnding[options.fileformat]
-    @setFileType editor, options.filetype
-    @setEncoding editor, options.fileencoding
-    @setIndent editor, options
+    options
 
   updateModelinePattern: ->
     prefix = atom.config.get('vim-modeline.prefix').join "|"
