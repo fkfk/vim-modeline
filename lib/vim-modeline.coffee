@@ -39,7 +39,6 @@ module.exports = VimModeline =
 
   activate: (state) ->
     @emitter = new Emitter
-    _this = @
 
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
@@ -50,9 +49,9 @@ module.exports = VimModeline =
 
     @subscriptions.add atom.workspace.observeTextEditors (editor) => @detectVimModeLine(editor, false)
 
-    @subscriptions.add @onDidSetEncoding ({encoding}) ->
+    @subscriptions.add @onDidSetEncoding ({encoding}) =>
       pkg = atom.packages.getActivePackage 'auto-encoding'
-      if pkg?.mainModule.subscriptions? and not _this.commandDispatched
+      if pkg?.mainModule.subscriptions? and not @commandDispatched
         atom.notifications.addWarning "WARNING: auto-encoding package is enabled. In this case, file encoding doesn't match the modeline. If you want use vim-modeline parse result, please invoke 'vim-modeline:detect' command or select encoding '#{encoding}'.", dismissable: true
 
   deactivate: ->
