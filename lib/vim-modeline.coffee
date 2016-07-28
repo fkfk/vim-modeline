@@ -118,7 +118,7 @@ module.exports = VimModeline =
 
   updateModelinePattern: ->
     prefix = atom.config.get('vim-modeline.prefix').join "|"
-    @modelinePattern = new RegExp "(#{prefix})([<=>]?\\d+)*:\\s*(set*)*\\s+([^:]+)*\\s*:"
+    @modelinePattern = new RegExp "(#{prefix})([<=>]?\\d+)*:\\s*(set*)*\\s+([^:]+)*\\s*:?"
 
   parseVimModeLine: (line) ->
     matches = line.match @modelinePattern
