@@ -44,6 +44,9 @@ module.exports = VimModeline =
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
+    @subscriptions.add atom.config.onDidChange 'vim-modeline.prefix', => @updateModelinePattern()
+    @updateModelinePattern()
+
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-text-editor', 'vim-modeline:detect': => @detectAndApplyModelineSetting(null, true)
     @subscriptions.add atom.commands.add 'atom-text-editor', 'vim-modeline:insert-modeline': => @insertModeLine()
@@ -55,9 +58,6 @@ module.exports = VimModeline =
       if pkg?.mainModule.subscriptions? and not @commandDispatched
         atom.notifications.addWarning "WARNING: auto-encoding package is enabled. In this case, file encoding doesn't match the modeline. If you want use vim-modeline parse result, please invoke 'vim-modeline:detect' command or select encoding '#{encoding}'.", dismissable: true
 
-    @subscriptions.add atom.config.onDidChange 'vim-modeline.prefix', => @updateModelinePattern()
-
-    @updateModelinePattern()
 
   deactivate: ->
     @subscriptions.dispose()
@@ -123,7 +123,7 @@ module.exports = VimModeline =
   parseVimModeLine: (line) ->
     matches = line.match @modelinePattern
     options = null
-    if matches
+    if matches?[4]?
       options = {}
       for option in matches[4].split " "
         [key, value] = option.split "="
