@@ -23,6 +23,7 @@ module.exports = VimModeline =
     encoding: "fileencoding"
     lineEnding: "fileformat"
     grammar: "filetype"
+    syntax: "filetype"
   }
   pairOptions: [
     {on: "expandtab", off: "noexpandtab"}
