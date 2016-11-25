@@ -31,7 +31,7 @@ Enable Vim-style modeline in Atom.
 - `lineEnding` -> `fileformat`
 - `grammar` -> `filetype`
 - `tabLength` -> `tabstop`
--
+
 ## Configuring filetype
 
 You can add more filetype for a given language scope.
