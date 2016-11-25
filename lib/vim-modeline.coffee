@@ -38,6 +38,7 @@ module.exports = VimModeline =
     crlf: "dos"
     cr: "mac"
   }
+  fileTypeMapper: require './vim-modeline-filetype'
 
   activate: (state) ->
     @emitter = new Emitter
@@ -151,11 +152,40 @@ module.exports = VimModeline =
     @emitter.emit 'did-set-line-ending', {editor, lineEnding}, @
 
   setFileType: (editor, type) ->
-    grammar = atom.grammars.selectGrammar(type)
+    grammar = @matchFileType editor, type
     if grammar isnt atom.grammars.nullGrammar
       atom.grammars.setGrammarOverrideForPath editor.getPath(), grammar.scopeName
       editor?.setGrammar grammar
       @emitter.emit 'did-set-file-type', {editor, grammar}, @
+
+  matchFileType: (editor, type) ->
+    mapper = @getFileTypeMapper type
+    if typeof(mapper) is "string"
+      grammar = atom.grammars.grammarForScopeName(mapper)
+    else if typeof(mapper) is "object" and mapper.length > 0
+      content = editor?.getBuffer()?.getText()
+      scores = mapper.map (scopeName) ->
+        g = atom.grammars.grammarForScopeName(scopeName) || atom.grammars.nullGrammar
+        {
+          scopeName: scopeName
+          score: atom.grammars.getGrammarScore(g, editor.getPath(), content)
+        }
+      detect = _.max scores, (score) ->
+        score.score
+      grammar = atom.grammars.grammarForScopeName(detect.scopeName)
+    else
+      grammar = atom.grammars.selectGrammar(type)
+    return grammar || atom.grammars.nullGrammar
+
+  getFileTypeMapper: (type) ->
+    mapper = @fileTypeMapper[type] || []
+    extra = atom.config.get("vim-modeline-filetypes") || {}
+    if typeof(extra[type]) is "string"
+      mapper = extra[type]
+    else if typeof(extra[type]) is "object"
+      for ft in extra[type]
+        mapper.push ft
+    mapper
 
   setIndent: (editor, options) ->
     softtab = undefined

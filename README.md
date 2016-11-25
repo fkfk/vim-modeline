@@ -31,6 +31,21 @@ Enable Vim-style modeline in Atom.
 - `lineEnding` -> `fileformat`
 - `grammar` -> `filetype`
 - `tabLength` -> `tabstop`
+-
+## Configuring extension
+
+You can add more filetype for a given language scope.
+To do this, add the settings to the `~/.atom/config.cson` in the format below.
+
+```coffeescript
+'vim-modeline-filetypes':
+  # append scopeName
+  'as': [
+    'source.actionscript.3'
+  ]
+  # override scopeName
+  'markdown': 'text.md'
+```
 
 ## vim-modeline Event Handler
 
