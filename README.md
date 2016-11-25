@@ -32,7 +32,7 @@ Enable Vim-style modeline in Atom.
 - `grammar` -> `filetype`
 - `tabLength` -> `tabstop`
 -
-## Configuring extension
+## Configuring filetype
 
 You can add more filetype for a given language scope.
 To do this, add the settings to the `~/.atom/config.cson` in the format below.
