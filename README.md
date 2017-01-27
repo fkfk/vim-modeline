@@ -8,6 +8,7 @@ Enable Vim-style modeline in Atom.
 - `fileencoding`
 - `fileformat`
 - `filetype`
+- `spell` / `nospell`
 - `tabstop`
 
 ## Example

@@ -27,6 +27,7 @@ module.exports = VimModeline =
   }
   pairOptions: [
     {on: "expandtab", off: "noexpandtab"}
+    {on: "spell", off: "nospell"}
   ]
   lineEnding: {
     unix: "\n"
@@ -102,6 +103,12 @@ module.exports = VimModeline =
       @setFileType editor, options.filetype
       @setEncoding editor, options.fileencoding
       @setIndent editor, options
+      if atom.packages.isPackageActive 'spell-check'
+        @setSpellCheck editor, options
+      else
+        atom.packages.onDidActivatePackage (pkg) =>
+          if pkg.name is 'spell-check'
+            @setSpellCheck editor, options
 
   detectVimModeLine: (editor) ->
     options = false
@@ -208,6 +215,16 @@ module.exports = VimModeline =
       tabstop = parseInt options.tabstop, 10
       editor?.setTabLength tabstop
       @emitter.emit 'did-set-tab-length', {editor, tabstop}, @
+
+  setSpellCheck: (editor, options) ->
+    enabled = undefined
+    enabled = true if options.spell
+    enabled = false if options.nospell
+    if enabled isnt undefined
+        pkg = atom.packages.getActivePackage "spell-check"
+        view = pkg.mainModule.viewsByEditor.get(editor)
+        if (view.buffer isnt null and enabled is false) or (view.buffer is null and enabled is true)
+          atom.commands.dispatch(document.querySelector('atom-workspace'), "spell-check:toggle")
 
   insertModeLine: ->
     editor = atom.workspace.getActiveTextEditor()
